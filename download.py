@@ -8,6 +8,16 @@ from pyquery import PyQuery as pq
 from HTMLParser import HTMLParser
 
 template_path = "template.cpp"
+config_path = "config.json"
+
+def load_config():
+	json_data = open(config_path)
+	data = json.load(json_data)
+	json_data.close()
+	return data
+
+def find_contest():
+	
 
 def normalize_html(str):
 	return HTMLParser().unescape(re.sub(r"(?i)<br\s*?/?>","\n",str))
