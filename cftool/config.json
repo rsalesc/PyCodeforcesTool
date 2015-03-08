@@ -1,0 +1,14 @@
+{
+  "compilation": "g++ %{file} -std=c++11",
+  "extension": "cpp",
+  "executable": "./a.out",
+  "editor": "gedit",
+  "browser": "xdg-open",
+  "cfdomain": "com",
+  "xuser": "606457e5562d9e7b83c3fc38f6eba995650f58d40cc9989ae27936bd04141dd9a70bcc2ef4e531b8",
+  "token": "bc3f36fa10c1f43ddc8af3e8ffdd8945",
+  "subsCount": 2,
+  "handle": "Sales",
+  "friends" : "johnjq ffao mateuscgc",
+  "mergeouterr": false
+}
