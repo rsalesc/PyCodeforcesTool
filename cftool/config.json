@@ -1,7 +1,5 @@
 {
-  "compilation": "g++ %{file} -std=c++11",
-  "extension": "cpp",
-  "executable": "./a.out",
+  "release": 1,
   "editor": "gedit",
   "browser": "xdg-open",
   "cfdomain": "com",
@@ -10,5 +8,20 @@
   "subsCount": 2,
   "handle": "",
   "friends" : "",
-  "mergeouterr": true
+  "mergeouterr": true,
+  "languages":{
+    "default": "cpp",
+    "cpp":{
+      "template": "template.cpp",
+      "file": "%{problem-index}.cpp",
+      "preexec": "g++ %{file} -std=c++11",
+      "exec": "./a.out",
+      "typeid": 16
+    },
+    "py":{
+      "template": "template.py",
+      "file": "%{problem-index}.py",
+      "exec": "python %{file}"
+    }
+  }
 }

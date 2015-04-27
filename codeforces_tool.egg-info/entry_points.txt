@@ -1,0 +1,3 @@
+[console_scripts]
+cf = cftool.tool:main
+

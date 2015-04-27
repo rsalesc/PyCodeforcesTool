@@ -18,7 +18,7 @@ setup(
     author = "Roberto Sales",
     author_email = "iseme.beto@gmail.com",
     package_data = {
-        "":["config.json", "template"]
+        "":["config.json", "template.cpp"]
     },
     install_requires = [
         "colorama",

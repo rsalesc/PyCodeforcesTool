@@ -1,11 +1,14 @@
 from pprint import pprint
 import subprocess
-from download import cfg, get_contest_task_file, config_path, get_relative_problem_dir
+from download import cfg, get_contest_task_file, template_path, config_path, get_relative_problem_dir
 
 editor = cfg["editor"] if cfg["editor"] else "xdg-open"
 
 def open_editor(path):
 	subprocess.Popen([editor, path])
+
+def edit_template():
+	open_editor(template_path)
 
 def edit_config():
 	open_editor(config_path)
