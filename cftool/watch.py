@@ -91,6 +91,9 @@ def get_standings_table_string(contest):
 		return Fore.RED + "Contest standings could not be retrieved."
 
 def get_status_table_string(contest):
+	if cfg["handle"] == "":
+		return Fore.RED + "Status table could not be retrieved. Handle is not set."
+
 	qs = {
 		"contestId": contest["id"],
 		"handle": cfg["handle"],
