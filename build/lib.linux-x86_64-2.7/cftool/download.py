@@ -11,29 +11,36 @@ from pkg_resources import resource_string
 
 app_folder = os.path.join(os.path.expanduser("~"), ".cftool/")
 
-if not os.path.isdir(app_folder):
-	os.makedirs(app_folder)
-
-template_path = os.path.join(app_folder, "template")
-config_path = os.path.join(app_folder, "config.json")
-
-if not os.path.isfile(template_path):
-	template_tmp = resource_string(__name__, "template")
-	with open(template_path, "wb") as f:
-		f.write(template_tmp)
-
-if not os.path.isfile(config_path):
-	config_tmp = resource_string(__name__, "config.json")
-	with open(config_path, "wb") as f:
-		f.write(config_tmp)
-
-def load_config():
-	json_data = open(config_path)
+def load_config(path):
+	json_data = open(path)
 	data = json.load(json_data)
 	json_data.close()
 	return data
 
-cfg = load_config()
+def deprecated_config(path):
+	cur_config = load_config(path)
+	new_config = json.loads(resource_string(__name__, "config.json"))
+	if not "release" in cur_config.keys() or cur_config["release"] < new_config["release"]:
+		return True
+	return False
+
+if not os.path.isdir(app_folder):
+	os.makedirs(app_folder)
+
+default_template_path = os.path.join(app_folder, "template.cpp")
+config_path = os.path.join(app_folder, "config.json")
+
+if not os.path.isfile(default_template_path):
+	template_tmp = resource_string(__name__, "template.cpp")
+	with open(default_template_path, "wb") as f:
+		f.write(template_tmp)
+
+if not os.path.isfile(config_path) or deprecated_config(config_path):
+	config_tmp = resource_string(__name__, "config.json")
+	with open(config_path, "wb") as f:
+		f.write(config_tmp)
+
+cfg = load_config(config_path)
 
 def find_contest():
 	dir = os.getcwd()
@@ -51,8 +58,17 @@ def find_contest():
 			data["dir"] = dir
 			return data
 
-def get_contest_task_file(contest, index):
-	return os.path.join(contest["dir"], "%s/%s.%s" % (index, index, cfg["extension"]))
+def get_contest_file_name(contest, index, language=None):
+	if not language:
+		language = cfg["languages"][cfg["languages"]["default"]]
+
+	return language["file"].replace("%{problem-index}", index)
+
+def get_contest_task_file(contest, index, language=None):
+	if not language:
+		language = cfg["languages"][cfg["languages"]["default"]]
+
+	return os.path.join(contest["dir"], "%s/%s" % (index, get_contest_file_name(contest, index, language)))
 
 def get_relative_problem_dir(contest, index):
 	return "%s/" % (index)
@@ -106,7 +122,15 @@ def create_contest(contest_id):
 		if not os.path.exists(problem_dir):
 			os.makedirs(problem_dir)
 
-		shutil.copyfile(template_path, os.path.join(problem_dir, problem["idx"]+"."+cfg["extension"]))
+		# shutil.copyfile(template_path, os.path.join(problem_dir, problem["idx"]+"."+cfg["extension"])) # check this
+		for key, language in cfg["languages"].iteritems():
+			if key == "default":
+				continue
+			if "template" in language.keys():
+				template_path = os.path.join(app_folder, language["template"])
+				if os.path.exists(template_path):
+					shutil.copyfile(template_path, os.path.join(problem_dir, get_contest_file_name(contest, problem["idx"], language)))
+
 		for i,test in enumerate(problem["tests"]):
 			in_path = problem_dir + ("test%d.in" % i)
 			out_path = problem_dir + ("test%d.out" % i)

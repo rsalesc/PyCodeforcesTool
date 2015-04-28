@@ -5,7 +5,7 @@ from download import cfg, get_contest_task_file, config_path, get_relative_probl
 editor = cfg["editor"] if cfg["editor"] else "xdg-open"
 
 def open_editor(path):
-	subprocess.Popen([editor, path])
+	subprocess.call([editor, path])
 
 def edit_config():
 	open_editor(config_path)

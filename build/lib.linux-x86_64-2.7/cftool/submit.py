@@ -5,7 +5,22 @@ import os
 from download import find_contest, cfg
 from colorama import init, Fore
 
-def submit_problem(contest, problem, file):
+def get_index_and_language(string):
+    language = None
+    splitted = string.split(".")
+    if len(splitted) > 1 and splitted[1] in cfg["languages"].keys():
+        language = cfg["languages"][splitted[1]]
+
+    return (splitted[0], language)
+
+def submit_problem(contest, problem, file, language=None):
+    if not language:
+        language = cfg["languages"][cfg["languages"]["default"]]
+
+    if not "typeid" in language.keys():
+        print Fore.RED + "Typeid for this language is not set."
+        return False
+
     if not os.path.exists(file):
         return False
     if cfg["xuser"] and cfg["token"] and cfg["cfdomain"]:
@@ -14,7 +29,7 @@ def submit_problem(contest, problem, file):
             "action":                "submitSolutionFormSubmitted",
             "submittedProblemIndex": problem,
             "source":                open(file, "rb").read(),
-            "programTypeId":         "16",
+            "programTypeId":         language["typeid"],
             "sourceFile":            "",
             "_tta":                  "222"
         }

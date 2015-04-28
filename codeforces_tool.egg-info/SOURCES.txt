@@ -5,7 +5,7 @@ cftool/config.json
 cftool/download.py
 cftool/editor.py
 cftool/submit.py
-cftool/template
+cftool/template.cpp
 cftool/tester.py
 cftool/tool.py
 cftool/watch.py

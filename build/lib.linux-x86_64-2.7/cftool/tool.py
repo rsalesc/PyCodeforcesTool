@@ -1,7 +1,7 @@
 import argparse
 from colorama import init, Fore
 from download import find_contest, get_contest_task_file, create_contest
-from submit import submit_problem
+from submit import submit_problem, get_index_and_language
 from watch import get_status_table_string, get_standings_table_string, normal_buffer, alternate_buffer, clear_buffer
 from tester import test_contest_problem
 import editor
@@ -51,7 +51,10 @@ def main():
         contest = find_contest()
         if contest != None:
             os.chdir(contest["dir"])
-            if submit_problem(contest, args.submit, get_contest_task_file(contest, args.submit)):
+            
+            (index, language) = get_index_and_language(args.submit)
+
+            if submit_problem(contest, args.submit, get_contest_task_file(contest, index, language), language):
                 print Fore.GREEN + "Problem submitted. Make sure it was not identical to some previous submission."
             else:
                 print Fore.RED + "The problem could not be submitted."
@@ -62,7 +65,9 @@ def main():
         contest = find_contest()
         if contest != None:
             os.chdir(contest["dir"])
-            test_contest_problem(contest, args.test)
+            (index, language) = get_index_and_language(args.test)
+
+            test_contest_problem(contest, index, language)
         else:
             contest_not_found()
 
@@ -82,4 +87,4 @@ def main():
 
     elif args.config:
         editor.edit_config()
-        editor.edit_template()
+        # editor.edit_template()
