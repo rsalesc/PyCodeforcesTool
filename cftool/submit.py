@@ -13,6 +13,20 @@ def get_index_and_language(string):
 
     return (splitted[0], language)
 
+def get_problem_and_language(string):
+    language = None
+    name, extension = os.path.splitext(os.path.basename(string))
+    language = cfg["languages"][extension[1:]]
+    ps = name.split()[0]
+    i = 0
+    while ps[i].isdigit():
+        i += 1
+
+    if i == 0 or i == len(ps):
+        return False
+    else:    
+        return (int(ps[:i]), ps[i:], language)
+
 def submit_problem(contest, problem, file, language=None):
     if not language:
         language = cfg["languages"][cfg["languages"]["default"]]

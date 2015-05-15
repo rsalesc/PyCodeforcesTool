@@ -17,6 +17,7 @@ group.add_argument("-s", "--submit", metavar="problem-index", help="submit a pro
 group.add_argument("-t", "--test", metavar="problem-index", help="test a problem from current contest")
 group.add_argument("-a", "--add", metavar="problem-index", help="add a custom test case to the problem")
 group.add_argument("-e", "--edit", metavar="problem-index", help="edit problem from current contest")
+group.add_argument("-f", "--folder", action="store_true", help="open folder in desired application")
 group.add_argument("-c", "--config", action="store_true", help="edit tool configurations")
 
 args = parser.parse_args()
@@ -82,6 +83,13 @@ def main():
         contest = find_contest()
         if contest != None:
             editor.edit_contest_problem(contest, args.edit)
+        else:
+            contest_not_found()
+
+    elif args.folder:
+        contest = find_contest()
+        if contest != None:
+            editor.edit_contest_folder(contest)
         else:
             contest_not_found()
 
