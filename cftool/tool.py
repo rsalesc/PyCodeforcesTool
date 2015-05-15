@@ -1,9 +1,9 @@
 import argparse
 from colorama import init, Fore
-from download import find_contest, get_contest_task_file, create_contest
+from download import find_contest, get_contest_task_file, create_contest, find_or_create_global_contest
 from submit import submit_problem, get_index_and_language, get_problem_and_language
 from watch import get_status_table_string, get_standings_table_string, normal_buffer, alternate_buffer, clear_buffer
-from tester import test_contest_problem
+from tester import test_contest_problem, test_single_problem
 import editor
 import time
 import os
