@@ -213,5 +213,5 @@ def create_global_contest(contest_id):
 def find_or_create_global_contest(contest_id):
 	contest = find_global_contest(contest_id)
 	if not contest:
-		contest = create_global_context(contest_id)
+		contest = create_global_contest(contest_id)
 	return contest

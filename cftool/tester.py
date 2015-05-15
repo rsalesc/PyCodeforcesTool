@@ -20,7 +20,7 @@ def check_tokens(output, expected):
         if not check_token(tk, expected_tk[idx]):
             return "Difference at token #%d. Expected '%s' but found '%s'." % (idx+1, expected_tk[idx], tk)
 
-def test_contest_problem(contest, problem, language=None, task_file=None):
+def test_contest_problem(contest, problem, language=None, task_file=None, stream=False):
     if not language:
         language = cfg["languages"][cfg["languages"]["default"]]
 
@@ -60,12 +60,25 @@ def test_contest_problem(contest, problem, language=None, task_file=None):
                 print Fore.WHITE + input_string.strip()
                 print ""
                 print Fore.MAGENTA + "Output:"
-                p = subprocess.Popen(shlex.split(executable), cwd=contest["dir"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=(subprocess.STDOUT if cfg["mergeouterr"] else None))
-                output_tuple = p.communicate(input=input_string)
-                output_print = output_tuple[0].strip()
+                p = subprocess.Popen(shlex.split(executable), bufsize=1 if stream else 0, cwd=contest["dir"], stdin=open(input_path, "rb"), stdout=subprocess.PIPE, stderr=(subprocess.STDOUT if cfg["mergeouterr"] else None))
+                # output_tuple = p.communicate(input=input_string)
+                output_print = ""
+
+                if stream:
+                    with p.stdout:
+                        for line in iter(p.stdout.readline, b''):
+                            print Fore.WHITE + line.rstrip()
+                            output_print += line
+                    p.wait() # wait for the subprocess to exit
+                    output_print = output_print.strip()
+                else:
+                    p.wait()
+                    output_print = p.communicate()[0].strip()
+                    print Fore.WHITE + output_print
+       
                 ans_print = ans_string.strip()
 
-                print Fore.WHITE + output_print
+                # print Fore.WHITE + output_print
                 print ""
                 print Fore.MAGENTA + "Expected Output:"
                 print Fore.WHITE + ans_print
@@ -86,13 +99,13 @@ def test_contest_problem(contest, problem, language=None, task_file=None):
         print Fore.RED + "Error at some step of pre-processing."
 
 
-def test_single_problem(path):
+def test_single_problem(path, stream=False):
     contest_id, idx, language = get_problem_and_language(path)
     contest = find_or_create_global_contest(contest_id)
     if not contest:
         print "Failed testing problem. Contest does not exists."
     else:
-        test_contest_problem(contest, idx, language, task_file=path)
+        test_contest_problem(contest, idx, language, task_file=path, stream=stream)
 
 if __name__ == "__main__":
     init(autoreset=True)

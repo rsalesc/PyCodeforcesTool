@@ -19,7 +19,9 @@ group.add_argument("-a", "--add", metavar="problem-index", help="add a custom te
 group.add_argument("-e", "--edit", metavar="problem-index", help="edit problem from current contest")
 group.add_argument("-f", "--folder", action="store_true", help="open folder in desired application")
 group.add_argument("-c", "--config", action="store_true", help="edit tool configurations")
+
 parser.add_argument("-x", "--single", action="store_true", help="modifier to run commands for a single file")
+parser.add_argument("-v", "--stream", action="store_true", help="print results in streaming way")
 
 args = parser.parse_args()
 
@@ -80,14 +82,14 @@ def main():
 
     elif args.test:
         if args.single:
-            test_single_problem(get_absolute_path(args.test))
+            test_single_problem(get_absolute_path(args.test), stream=args.stream)
         else:
             contest = find_contest()
             if contest != None:
                 os.chdir(contest["dir"])
                 (index, language) = get_index_and_language(args.test)
 
-                test_contest_problem(contest, index, language)
+                test_contest_problem(contest, index, language, stream=args.stream)
             else:
                 contest_not_found()
 
