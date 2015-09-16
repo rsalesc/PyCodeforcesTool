@@ -1,9 +1,9 @@
 import argparse
 from colorama import init, Fore
-from download import find_contest, get_contest_task_file, create_contest
+from download import find_contest, get_contest_task_file, create_contest, find_or_create_global_contest
 from submit import submit_problem, get_index_and_language, get_problem_and_language
 from watch import get_status_table_string, get_standings_table_string, normal_buffer, alternate_buffer, clear_buffer
-from tester import test_contest_problem
+from tester import test_contest_problem, test_single_problem
 import editor
 import time
 import os
@@ -19,7 +19,9 @@ group.add_argument("-a", "--add", metavar="problem-index", help="add a custom te
 group.add_argument("-e", "--edit", metavar="problem-index", help="edit problem from current contest")
 group.add_argument("-f", "--folder", action="store_true", help="open folder in desired application")
 group.add_argument("-c", "--config", action="store_true", help="edit tool configurations")
+
 parser.add_argument("-x", "--single", action="store_true", help="modifier to run commands for a single file")
+parser.add_argument("-v", "--stream", action="store_true", help="print results in streaming way")
 
 args = parser.parse_args()
 
@@ -80,14 +82,14 @@ def main():
 
     elif args.test:
         if args.single:
-            test_single_problem(get_absolute_path(args.test))
+            test_single_problem(get_absolute_path(args.test), stream=args.stream)
         else:
             contest = find_contest()
             if contest != None:
                 os.chdir(contest["dir"])
                 (index, language) = get_index_and_language(args.test)
 
-                test_contest_problem(contest, index, language)
+                test_contest_problem(contest, index, language, stream=args.stream)
             else:
                 contest_not_found()
 

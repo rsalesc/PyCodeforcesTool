@@ -49,7 +49,7 @@ def submit_problem(contest, problem, file, language=None):
         }
         url = "http://codeforces.%s/contest/%s/problem/%s" % (cfg["cfdomain"], contest["id"], problem)
         print Fore.YELLOW + "Submitting to %s" % (url)
-        r = requests.post(url, data=parts, cookies={"X-User":cfg["xuser"]}, timeout=3)
+        r = requests.post(url, data=parts, params={"csrf_token": cfg["token"]}, cookies={"X-User":cfg["xuser"]}, timeout=3)
         return r.status_code == requests.codes.ok
     print Fore.RED + "X-User/Token/CFDomain not set in config.json."
     return False

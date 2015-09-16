@@ -1,27 +1,20 @@
 from pprint import pprint
 import subprocess
-from download import cfg, get_contest_task_file, config_path, get_relative_problem_dir
+from download import cfg, get_contest_task_file, template_path, config_path, get_relative_problem_dir
 
-editor = cfg["editor"] if "editor" in cfg.keys() else "xdg-open"
-folder_editor = cfg["folder-editor"] if "folder-editor" in cfg.keys() else False
+editor = cfg["editor"] if cfg["editor"] else "xdg-open"
 
 def open_editor(path):
-	subprocess.call([editor, path])
+	subprocess.Popen([editor, path])
 
-def open_folder(path):
-	if not folder_editor:
-		print "Your folder editor was not configured."
-		return
-	subprocess.call([folder_editor, path])
+def edit_template():
+	open_editor(template_path)
 
 def edit_config():
 	open_editor(config_path)
 
 def edit_contest_problem(contest, problem):
 	open_editor(get_contest_task_file(contest, problem))
-
-def edit_contest_folder(contest):
-	open_folder(contest["dir"])
 
 def get_input_name(index):
 	return "test%d.in" % (index)
