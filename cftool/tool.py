@@ -1,8 +1,9 @@
 import argparse
 from colorama import init, Fore
-from download import find_contest, get_contest_task_file, create_contest, find_or_create_global_contest
+from download import find_contest, get_contest_task_file, create_contest, find_or_create_global_contest, app_folder
 from submit import submit_problem, get_index_and_language, get_problem_and_language
 from watch import get_status_table_string, get_standings_table_string, normal_buffer, alternate_buffer, clear_buffer
+from watch import get_last_table_string
 from tester import test_contest_problem, test_single_problem
 import editor
 import time
@@ -11,7 +12,9 @@ import atexit
 
 parser = argparse.ArgumentParser()
 group = parser.add_mutually_exclusive_group()
-group.add_argument("-w", "--watch", action="store_true", help="watch contest status")
+parser.add_argument("-w", "--watch", action="store_true", help="watch contest status")
+parser.add_argument("-l", "--last", action="store_true", help="watch your 5 last submissions")
+
 group.add_argument("-d", "--download", metavar="contest-identifier", help="download contest")
 group.add_argument("-s", "--submit", metavar="problem-index", help="submit a problem to current contest")
 group.add_argument("-t", "--test", metavar="problem-index", help="test a problem from current contest")
@@ -27,28 +30,24 @@ args = parser.parse_args()
 
 init(autoreset=True)
 
+def dump_table(name, str):
+    file = open(os.path.join(app_folder, name), "wb")
+    file.write(str)
+    file.close()
+
 def contest_not_found():
     print Fore.RED + "Contest could not be found."
 
 def get_absolute_path(path):
     return os.path.normpath(os.path.join(os.getcwd(), path))
 
-def main():
-    if args.watch:
-        contest = find_contest()
-        if contest != None:
-            atexit.register(normal_buffer)
-            alternate_buffer()
-            while 1:
-                status = get_status_table_string(contest)
-                standings = get_standings_table_string(contest)
-                clear_buffer()
-                print status
-                print standings
-                print Fore.YELLOW + "Last update at %s." % (time.strftime("%H:%M:%S"))
-                time.sleep(3)
+def get_last_update():
+    return Fore.YELLOW + "Last update at %s." % (time.strftime("%H:%M:%S"))
 
-    elif args.download:
+def main():
+    problem_submitted = False
+
+    if args.download:
         if create_contest(args.download):
             print Fore.GREEN + "Contest downloaded successfully."
         else:
@@ -63,6 +62,7 @@ def main():
                 contest_not_found()
             else:
                 if submit_problem(contest, idx, file, language):
+                    problem_submitted = True
                     print Fore.GREEN + "Problem submitted. Make sure it was not identical to some previous submission."
                 else:
                     print Fore.RED + "The problem could not be submitted."
@@ -74,6 +74,7 @@ def main():
                 (index, language) = get_index_and_language(args.submit)
 
                 if submit_problem(contest, args.submit, get_contest_task_file(contest, index, language), language):
+                    problem_submitted = True
                     print Fore.GREEN + "Problem submitted. Make sure it was not identical to some previous submission."
                 else:
                     print Fore.RED + "The problem could not be submitted."
@@ -117,3 +118,34 @@ def main():
     elif args.config:
         editor.edit_config()
         # editor.edit_template()
+    
+    if args.last:
+        atexit.register(normal_buffer)
+        alternate_buffer()
+        while 1:
+            last = get_last_table_string()
+            clear_buffer()
+            text = last
+            text += '\n'
+            if problem_submitted:
+                text += Fore.GREEN + "Request was sent. Check if problem was received by the server.\n"
+            text += get_last_update()+"\n"
+            print text
+            # dump_table("last", text)
+            time.sleep(3)
+
+    elif args.watch:
+        contest = find_contest()
+        if contest != None:
+            atexit.register(normal_buffer)
+            alternate_buffer()
+            while 1:
+                status = get_last_table_string(contest)
+                standings = get_standings_table_string(contest)
+                clear_buffer()
+                print status
+                print standings
+                print get_last_update()
+                time.sleep(3)
+
+

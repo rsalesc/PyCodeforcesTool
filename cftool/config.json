@@ -1,13 +1,12 @@
 {
-  "release": 2,
-  "editor": "gedit",
+  "release": 4,
+  "editor": "vim -o",
   "folder-editor": "subl",
   "browser": "xdg-open",
   "cfdomain": "com",
-  "xuser": "",
-  "token": "",
-  "subsCount": 2,
+  "subsCount": 3,
   "handle": "",
+  "password" :"",
   "friends" : "",
   "mergeouterr": true,
   "languages":{

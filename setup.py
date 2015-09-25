@@ -12,7 +12,7 @@ setup(
     entry_points = {
         "console_scripts": ['cf = cftool.tool:main']
     },
-    version = "0.1.3",
+    version = "0.2.0",
     description = "Codeforces tool python command line application.",
     long_description = "No description yet",
     author = "Roberto Sales",
@@ -24,6 +24,8 @@ setup(
         "colorama",
         "requests",
         "pyquery",
-        "prettytable"
+        "prettytable",
+        "mechanize",
+        "ago"
     ]
 )

@@ -7,6 +7,8 @@ from download import cfg, find_contest
 from colorama import Fore, init
 import time
 import atexit
+import ago
+from datetime import datetime
 
 verdict_map = {
     "OK" : Fore.GREEN + "Accepted",
@@ -29,6 +31,9 @@ def normal_buffer():
 
 def clear_buffer():
 	print "\x1b[2J\x1b[1;1H"
+
+def delta_time(ts):
+    return ago.human(datetime.fromtimestamp(ts), 1)
 
 def get_contest_time(secs):
 	if(secs > 1e7):
@@ -91,23 +96,57 @@ def get_standings_table_string(contest):
 		return Fore.RED + "Contest standings could not be retrieved."
 
 def get_status_table_string(contest):
-	if cfg["handle"] == "":
+	if cfg.get("handle", "") == "":
 		return Fore.RED + "Status table could not be retrieved. Handle is not set."
 
 	qs = {
 		"contestId": contest["id"],
 		"handle": cfg["handle"],
 		"from": 1,
-		"count": cfg["subsCount"]
+		"count": cfg.get("subsCount", 4)
 	}
 	r = requests.get("http://codeforces.com/api/contest.status", params=qs, timeout=4)
 	if r.status_code == requests.codes.ok:
-		table = PrettyTable(map(table_header, ["#", "Contest Time", "Problem", "Verdict", "Exec. Time", "Memory"]))
+		table = PrettyTable(map(table_header, ["#", "Time", "Contest Time", "Problem", "Verdict", "Exec. Time", "Memory"]))
 		data = r.json()
 		for sub in data["result"]:
-			table.add_row([sub["id"], get_contest_time(sub["relativeTimeSeconds"]), "%s - %s" % (sub["problem"]["index"], 
-				sub["problem"]["name"]), parse_verdict(sub["verdict"], sub["passedTestCount"]), "%d ms" %(sub["timeConsumedMillis"]), "%d KB" % (sub["memoryConsumedBytes"] // 1024)])
+			table.add_row([sub["id"], delta_time(sub["creationTimeSeconds"]), get_contest_time(sub["relativeTimeSeconds"]), "%s - %s" % (sub["problem"]["index"], 
+				sub["problem"]["name"]), parse_verdict(sub.get("verdict", ""), sub.get("passedTestCount", 0)), "%d ms" %(sub["timeConsumedMillis"]), "%d KB" % (sub["memoryConsumedBytes"] // 1024)])
 
 		return table.get_string()
 	else:
 		return Fore.RED + "Contest status could not be retrieved."
+
+def get_last_table_string(contest=None):
+    handle = cfg.get("handle", "")
+    if handle == "":
+        return Fore.RED + "Last submissions table could not be retrieved. Handle is not set."
+
+    maxsub = cfg.get("subsCount", 4)
+    qs = {
+        "handle": handle,
+        "from": 1,
+        "count": maxsub*2
+    }
+
+    r = requests.get("http://codeforces.com/api/user.status", params=qs, timeout=4)
+    if r.status_code == requests.codes.ok:
+        table = PrettyTable(map(table_header, ["#", "Time", "Problem", "Verdict", "Exec. Time", "Memory"]))
+        data = r.json()
+        result = data["result"]
+        if contest != None:
+            contest_id = contest["id"]
+            tmp = [i for i in result if str(i.get("contestId", "")).strip() == str(contest_id).strip()]
+            result = tmp
+    
+        cnt = 0
+        for sub in result:
+            if cnt >= maxsub:
+                break
+            cnt += 1
+            table.add_row([sub["id"], delta_time(sub["creationTimeSeconds"]), "%s - %s" % (sub["problem"]["index"], 
+				sub["problem"]["name"]), parse_verdict(sub.get("verdict", ""), sub["passedTestCount"]), "%d ms" %(sub["timeConsumedMillis"]), "%d KB" % (sub["memoryConsumedBytes"] // 1024)])
+
+        return table.get_string()
+    else:
+        return Fore.RED + "Last submissions could not be retrieved."

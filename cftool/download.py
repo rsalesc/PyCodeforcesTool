@@ -148,7 +148,7 @@ def create_contest(contest_id):
 			out_path = os.path.join(problem_dir, ("test%d.out" % i))
 			with open(in_path, "wb") as f:
 				f.write(test["input"])
-			with open(out_path, "wb") as f:
+                        with open(out_path, "wb") as f:
 				f.write(test["output"])
 
 	return True
