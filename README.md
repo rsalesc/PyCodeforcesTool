@@ -6,7 +6,7 @@
 
 ### All-in-one command
 ```
-git clone git@github.com:rsalesc/PyCodeforcesTool && cd PyCodeforcesTool && sudo python setup.py install && cd .. && sudo rm -rf PyCodeforcesTool
+git clone https://github.com/rsalesc/PyCodeforcesTool && cd PyCodeforcesTool && sudo python setup.py install && cd .. && sudo rm -rf PyCodeforcesTool
 ```
 
 ### Step-by-step
