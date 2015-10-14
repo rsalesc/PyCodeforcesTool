@@ -9,6 +9,7 @@ import editor
 import time
 import os
 import atexit
+import sys
 
 parser = argparse.ArgumentParser()
 group = parser.add_mutually_exclusive_group()
@@ -34,6 +35,19 @@ def dump_table(name, str):
     file = open(os.path.join(app_folder, name), "wb")
     file.write(str)
     file.close()
+
+def confirmation(text="Are you sure you want to continue?"):
+    choices = {"Y":True, "y":True, "n": False, "N": False}
+
+    print text + " (Y/n)"
+    while True:
+        r = raw_input().strip()
+        if not r in choices:
+            print "Please, type only (Y/n) as response."
+            continue
+        else:
+            return choices[r]
+
 
 def contest_not_found():
     print Fore.RED + "Contest could not be found."
@@ -61,6 +75,8 @@ def main():
             if not contest:
                 contest_not_found()
             else:
+                if not confirmation():
+                    sys.exit(0)
                 if submit_problem(contest, idx, file, language):
                     problem_submitted = True
                     print Fore.GREEN + "Problem submitted. Make sure it was not identical to some previous submission."
