@@ -75,6 +75,8 @@ def main():
             if not contest:
                 contest_not_found()
             else:
+                print Fore.CYAN + "Problem: " + Fore.RESET + str(idx)
+                print Fore.RED + "Have you checked all the corner cases, constraints and overflow possibilities?" + Fore.RESET
                 if not confirmation():
                     sys.exit(0)
                 if submit_problem(contest, idx, file, language):
