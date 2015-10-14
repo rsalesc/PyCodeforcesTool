@@ -88,7 +88,7 @@ def submit_problem(contest, problem, file, language=None):
         session = Session()
         session.login(cfg["handle"], cfg["password"])
         session.submit(contest["id"], problem, file, language["typeid"])
-        print Fore.MAGENTA + "Request was sent. Checking if problem was received by the server..." 
+        print Fore.MAGENTA + "Request was sent. Check if the submission was received by the server executing -l command"
         return True
     else:
         print Fore.RED + "Credentials were not set in config.json"

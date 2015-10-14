@@ -115,7 +115,7 @@ def get_status_table_string(contest):
 
 		return table.get_string()
 	else:
-		return Fore.RED + "Contest status could not be retrieved."
+		return Fore.RED + "Contest status could not be retrieved. Check if handles are correctly set."
 
 def get_last_table_string(contest=None):
     handle = cfg.get("handle", "")
