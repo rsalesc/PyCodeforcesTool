@@ -109,6 +109,9 @@ def get_status_table_string(contest):
 	if r.status_code == requests.codes.ok:
 		table = PrettyTable(map(table_header, ["#", "Time", "Contest Time", "Problem", "Verdict", "Exec. Time", "Memory"]))
 		data = r.json()
+        if data["status"] == "FAILED":
+            return Fore.RED + "Contest status could not be retrieved.\n" + Fore.RESET + "Reason: " + data["comment"]
+
 		for sub in data["result"]:
 			table.add_row([sub["id"], delta_time(sub["creationTimeSeconds"]), get_contest_time(sub["relativeTimeSeconds"]), "%s - %s" % (sub["problem"]["index"], 
 				sub["problem"]["name"]), parse_verdict(sub.get("verdict", ""), sub.get("passedTestCount", 0)), "%d ms" %(sub["timeConsumedMillis"]), "%d KB" % (sub["memoryConsumedBytes"] // 1024)])
@@ -133,6 +136,9 @@ def get_last_table_string(contest=None):
     if r.status_code == requests.codes.ok:
         table = PrettyTable(map(table_header, ["#", "Time", "Problem", "Verdict", "Exec. Time", "Memory"]))
         data = r.json()
+        if data["status"] == "FAILED":
+            return Fore.RED + "Last submissions could not be retrieved.\n" + Fore.RESET + "Reason: " + data["comment"]
+
         result = data["result"]
         if contest != None:
             contest_id = contest["id"]
