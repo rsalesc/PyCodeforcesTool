@@ -8,6 +8,9 @@
   "handle": "",
   "password" :"",
   "friends" : "",
+  "watchFriends": true,
+  "showFriendsFails": true,
+  "showRank": false,
   "mergeouterr": true,
   "languages":{
     "default": "cpp",

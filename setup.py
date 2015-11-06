@@ -12,13 +12,13 @@ setup(
     entry_points = {
         "console_scripts": ['cf = cftool.tool:main']
     },
-    version = "0.2.1",
+    version = "0.5.0",
     description = "Codeforces tool python command line application.",
     long_description = "No description yet",
     author = "Roberto Sales",
     author_email = "iseme.beto@gmail.com",
     package_data = {
-        "":["config.json", "template.cpp"]
+        "":["config.json", "template.cpp", "imgs/*.png"]
     },
     install_requires = [
         "colorama",
@@ -26,6 +26,7 @@ setup(
         "pyquery",
         "prettytable",
         "mechanize",
-        "ago"
+        "ago",
+        "notify2"
     ]
 )

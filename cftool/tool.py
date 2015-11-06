@@ -5,24 +5,28 @@ from submit import submit_problem, get_index_and_language, get_problem_and_langu
 from watch import get_status_table_string, get_standings_table_string, normal_buffer, alternate_buffer, clear_buffer
 from watch import get_last_table_string
 from tester import test_contest_problem, test_single_problem
+import notify
 import editor
 import time
 import os
 import atexit
 import sys
+import signal
 
 parser = argparse.ArgumentParser()
 group = parser.add_mutually_exclusive_group()
-parser.add_argument("-w", "--watch", action="store_true", help="watch contest status")
-parser.add_argument("-l", "--last", action="store_true", help="watch your 5 last submissions")
+watch = parser.add_mutually_exclusive_group()
+watch.add_argument("-w", "--watch", action="store_true", help="watch contest status")
+watch.add_argument("-l", "--last", action="store_true", help="watch your 5 last submissions")
 
 group.add_argument("-d", "--download", metavar="contest-identifier", help="download contest")
 group.add_argument("-s", "--submit", metavar="problem-index", help="submit a problem to current contest")
-group.add_argument("-t", "--test", metavar="problem-index", help="test a problem from current contest")
+group.add_argument("-t", "--test",  help="test a problem from current contest")
 group.add_argument("-a", "--add", metavar="problem-index", help="add a custom test case to the problem")
 group.add_argument("-e", "--edit", metavar="problem-index", help="edit problem from current contest")
 group.add_argument("-f", "--folder", action="store_true", help="open folder in desired application")
 group.add_argument("-c", "--config", action="store_true", help="edit tool configurations")
+group.add_argument("-n", "--notify", action="store_true", help="watch for notifications")
 
 parser.add_argument("-x", "--single", action="store_true", help="modifier to run commands for a single file")
 parser.add_argument("-v", "--stream", action="store_true", help="print results in streaming way")
@@ -58,8 +62,18 @@ def get_absolute_path(path):
 def get_last_update():
     return Fore.YELLOW + "Last update at %s." % (time.strftime("%H:%M:%S"))
 
+def sigint_handler(signal, frame):
+    sys.exit(0)
+
 def main():
+    signal.signal(signal.SIGINT, sigint_handler)
     problem_submitted = False
+    
+    if args.notify:
+        contest = find_contest()
+        if contest != None:
+            notify.process(contest)
+        return
 
     if args.download:
         if create_contest(args.download):
@@ -68,6 +82,11 @@ def main():
             print Fore.RED + "Contest could not be downloaded."
 
     elif args.submit:
+        print Fore.CYAN + "Problem: " + Fore.RESET + str(args.submit)
+        print Fore.RED + "Have you checked all the corner cases, constraints and overflow possibilities?" + Fore.RESET
+        if not confirmation():
+            sys.exit(0)
+
         if args.single:
             file = get_absolute_path(args.submit)
             contest_id, idx, language = get_problem_and_language(file)
@@ -75,10 +94,6 @@ def main():
             if not contest:
                 contest_not_found()
             else:
-                print Fore.CYAN + "Problem: " + Fore.RESET + str(idx)
-                print Fore.RED + "Have you checked all the corner cases, constraints and overflow possibilities?" + Fore.RESET
-                if not confirmation():
-                    sys.exit(0)
                 if submit_problem(contest, idx, file, language):
                     problem_submitted = True
                     print Fore.GREEN + "Problem submitted. Make sure it was not identical to some previous submission."
@@ -101,7 +116,7 @@ def main():
 
     elif args.test:
         if args.single:
-            test_single_problem(get_absolute_path(args.test), stream=args.stream)
+            test_single_problem(args.test[0], args=args.test[1:], stream=args.stream)
         else:
             contest = find_contest()
             if contest != None:
