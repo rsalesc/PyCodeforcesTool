@@ -116,12 +116,13 @@ def watch(user, handles, contest, watch_all=True, fetch_standings=False):
             pos = " %s now ranked #%d with %d points." % ("You are" if is_self(handle) else "(S)he is", int(rank[handle][0]), int(rank[handle][1])) if handle in rank else ""
 
             for sub in subs:
-                ntuple = (sub["testset"], sub["verdict"])
+                verd = sub.get("verdict", "")
+                ntuple = (sub["testset"], verdict)
                 if sub["id"] not in mp or mp[sub["id"]] != ntuple:
                     mp[sub["id"]] = ntuple
                     
                     testset = TESTSETS.get(sub["testset"], "tests")
-                    verdict = sub["verdict"].replace("_", " ")
+                    verdict = verd.replace("_", " ")
                     passed_count = sub["passedTestCount"]
                     pc = " on %s %d" % (testset[:-1], passed_count+1)
                     letter = sub["problem"]["index"]
@@ -130,15 +131,15 @@ def watch(user, handles, contest, watch_all=True, fetch_standings=False):
                     icon_group = "self" if is_self(handle) else "friend"
 
                     if handle in happened:
-                        if sub["verdict"] == "OK":
+                        if verd == "OK":
                             ICON = ICONS[icon_group]["OK"]
                             ntf.Notification("%s got accepted on %s!" % (tsubject, testset), "%s submission on problem %s got %s.%s" % (subject, letter, verdict, pos), ICON).show()
-                        elif sub["verdict"] == "CHALLENGED":
+                        elif verd == "CHALLENGED":
                             ICON = ICONS[icon_group]["CHALLENGED"]
                             if is_self(handle) or watch_all:
                                 ntf.Notification("%s got hacked!" % (tsubject), "%s submission on problem %s got hacked!" % (subject, letter), ICON).show()
-                        elif sub["verdict"] in FAIL:
-                            ICON = ICONS[icon_group].get(sub["verdict"], ICONS[icon_group]["FAIL"])
+                        elif verd in FAIL:
+                            ICON = ICONS[icon_group].get(verd, ICONS[icon_group]["FAIL"])
                             if is_self(handle) or (watch_all and sub["verdict"] != "COMPILATION_ERROR"):
                                 ntf.Notification("%s failed on %s!" % (tsubject, testset), "%s submission on problem %s got %s%s.%s"  % (subject, letter, verdict, pc, pos), ICON).show()
 
