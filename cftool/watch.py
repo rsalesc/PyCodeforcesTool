@@ -132,7 +132,13 @@ def get_last_table_string(contest=None):
         "count": maxsub*2
     }
 
-    r = requests.get("http://codeforces.com/api/user.status", params=qs, timeout=4)
+    r = None
+    if contest == None:
+        r = requests.get("http://codeforces.com/api/user.status", params=qs, timeout=4)
+    else:
+        qs["contestId"] = contest["id"]
+        r = requests.get("http://codeforces.com/api/contest.status", params=qs, timeout=4)
+
     if r.status_code == requests.codes.ok:
         table = PrettyTable(map(table_header, ["#", "Time", "Problem", "Verdict", "Exec. Time", "Memory"]))
         data = r.json()
