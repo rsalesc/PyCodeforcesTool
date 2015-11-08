@@ -38,7 +38,7 @@ TESTSETS = {
 FAIL=["COMPILATION_ERROR", "RUNTIME_ERROR", "WRONG_ANSWER", "PRESENTATION_ERROR", "TIME_LIMIT_EXCEEDED", "MEMORY_LIMIT_EXCEEDED",
 "IDLENESS_LIMIT_EXCEEDED", "SECURITY_VIOLATED"]
 
-MAX_REQUESTS_PER_SECOND = 5
+MAX_REQUESTS_PER_SECOND = 4
 sema = threading.BoundedSemaphore(MAX_REQUESTS_PER_SECOND)
 
 def request(url):
@@ -144,7 +144,7 @@ def watch(user, handles, contest, watch_all=True, fetch_standings=False):
 
             happened[handle] = True
 
-        time.sleep(5)
+        time.sleep(3)
 
 def process(contest):
     handles = []
