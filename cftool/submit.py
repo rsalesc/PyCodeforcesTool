@@ -10,7 +10,7 @@ class Session():
     def __init__(self):
         self.br = mechanize.Browser()
         self.br.set_handle_robots(False)
-    
+
     def select_form_by_id(self, id, forms):
         for form in forms:
             if form.attrs.get("id") == id:
@@ -70,7 +70,7 @@ def get_problem_and_language(string):
 
     if i == 0 or i == len(ps):
         return False
-    else:    
+    else:
         return (int(ps[:i]), ps[i:], language)
 
 def submit_problem(contest, problem, file, language=None):
@@ -83,7 +83,7 @@ def submit_problem(contest, problem, file, language=None):
 
     if not os.path.exists(file):
         return False
-    
+
     if cfg["handle"] and cfg["password"]:
         session = Session()
         session.login(cfg["handle"], cfg["password"])

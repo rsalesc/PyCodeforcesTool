@@ -1,5 +1,5 @@
 {
-  "release": 4,
+  "release": 5,
   "editor": "vim -o",
   "folder-editor": "subl",
   "browser": "xdg-open",
@@ -17,14 +17,25 @@
     "cpp":{
       "template": "template.cpp",
       "file": "%{problem-index}.cpp",
-      "preexec": "g++ %{file} -std=c++11",
+      "preexec": ["g++ \"%{file}\" -std=c++11"],
+      "exec": "./a.out",
+      "typeid": 42
+    },
+    "cpp+exinc":{
+      "template": "template.cpp",
+      "file": "%{problem-index}.cpp",
+      "submitFile": "%{problem-index}.pre.cpp",
+      "preexec": [
+        "exinc -i \"%{file}\" -o \"%{submit-file}\"",
+        "g++ \"%{submit-file}\" -std=c++11"
+      ],
       "exec": "./a.out",
       "typeid": 42
     },
     "py":{
       "template": "template.py",
       "file": "%{problem-index}.py",
-      "exec": "python %{file}",
+      "exec": "python \"%{file}\"",
       "typeid": 7
     }
   }

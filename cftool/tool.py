@@ -1,6 +1,7 @@
 import argparse
 from colorama import init, Fore
-from download import find_contest, get_contest_task_file, create_contest, find_or_create_global_contest, app_folder
+from download import find_contest, get_contest_task_file, create_contest, find_or_create_global_contest, app_folder, \
+                    get_contest_task_submit_file
 from submit import submit_problem, get_index_and_language, get_problem_and_language
 from watch import get_status_table_string, get_standings_table_string, normal_buffer, alternate_buffer, clear_buffer
 from watch import get_last_table_string
@@ -68,7 +69,7 @@ def sigint_handler(signal, frame):
 def main():
     signal.signal(signal.SIGINT, sigint_handler)
     problem_submitted = False
-    
+
     if args.notify:
         contest = find_contest()
         if contest != None:
@@ -103,10 +104,10 @@ def main():
             contest = find_contest()
             if contest != None:
                 os.chdir(contest["dir"])
-                
+
                 (index, language) = get_index_and_language(args.submit)
 
-                if submit_problem(contest, args.submit, get_contest_task_file(contest, index, language), language):
+                if submit_problem(contest, args.submit, get_contest_task_submit_file(contest, index, language), language):
                     problem_submitted = True
                     print Fore.GREEN + "Problem submitted. Make sure it was not identical to some previous submission."
                 else:
@@ -151,7 +152,7 @@ def main():
     elif args.config:
         editor.edit_config()
         # editor.edit_template()
-    
+
     if args.last:
         atexit.register(normal_buffer)
         alternate_buffer()
@@ -180,5 +181,3 @@ def main():
                 print standings
                 print get_last_update()
                 time.sleep(3)
-
-

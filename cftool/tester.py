@@ -4,7 +4,8 @@ import json
 import os
 import shlex
 from colorama import init, Fore
-from download import cfg, get_contest_task_file, find_contest, get_relative_problem_dir, find_or_create_global_contest
+from download import cfg, get_contest_task_file, find_contest, get_relative_problem_dir, find_or_create_global_contest, \
+                get_contest_submit_file_name, get_contest_task_submit_file
 from submit import get_problem_and_language
 
 def check_token(output_tk, expected_tk):
@@ -26,21 +27,25 @@ def test_contest_problem(contest, problem, language=None, task_file=None, stream
 
     problem_dir = os.path.join(contest["dir"], get_relative_problem_dir(contest, problem))
     if not task_file:
-        task_file = os.path.relpath(get_contest_task_file(contest, problem, language))
+        task_file = os.path.relpath(get_contest_task_file(contest, problem, language), contest["dir"])
+    submit_file = os.path.relpath(get_contest_task_submit_file(contest, problem, language), contest["dir"])
 
     print Fore.CYAN + "Pre-processing %s..." % (task_file)
     preexec_ok = True
-    preexec_list = language["preexec"].split(";") if "preexec" in language.keys() else []
+    preexec_list = language["preexec"] if "preexec" in language.keys() else []
 
     for pre in preexec_list:
-        preexec_line = pre.replace("%{file}", "\"%s\"" % (task_file))
+        preexec_line = pre.replace("%{file}", task_file) \
+                        .replace("%{submit-file}", submit_file)
+
         p = subprocess.Popen(shlex.split(preexec_line), cwd=contest["dir"])
         p.wait()
         if p.returncode != 0:
             preexec_ok = False
+            break
 
     if preexec_ok:
-        executable = language["exec"].replace("%{file}", task_file)
+        executable = language["exec"].replace("%{file}", task_file).replace("%{submit-file}", submit_file)
         inputs = [file for file in os.listdir(problem_dir) if file.endswith(".in")]
         for idx, input_file in enumerate(sorted(inputs)):
             input_path = os.path.join(problem_dir, input_file)
@@ -75,7 +80,7 @@ def test_contest_problem(contest, problem, language=None, task_file=None, stream
                     p.wait()
                     output_print = p.communicate()[0].strip()
                     print Fore.WHITE + output_print
-       
+
                 ans_print = ans_string.strip()
 
                 # print Fore.WHITE + output_print

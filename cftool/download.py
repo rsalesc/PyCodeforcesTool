@@ -82,6 +82,21 @@ def get_contest_task_file(contest, index, language=None):
 
 	return os.path.join(contest["dir"], "%s/%s" % (index, get_contest_file_name(contest, index, language)))
 
+def get_contest_submit_file_name(contest, index, language=None):
+    if not language:
+		language = cfg["languages"][cfg["languages"]["default"]]
+
+    if not "submitFile" in language:
+        return get_contest_file_name(contest, index, language)
+    else:
+        return language["submitFile"].replace("%{problem-index}", index) \
+                .replace("%{file}", get_contest_file_name(contest, index, language))
+
+def get_contest_task_submit_file(contest, index, language=None):
+    if not language:
+		language = cfg["languages"][cfg["languages"]["default"]]
+    return os.path.join(contest["dir"], "%s/%s" % (index, get_contest_submit_file_name(contest, index, language)))
+
 def get_relative_problem_dir(contest, index):
 	return "%s/" % (index)
 
