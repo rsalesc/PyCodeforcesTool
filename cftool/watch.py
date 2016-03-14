@@ -55,8 +55,9 @@ def get_hacks(ok, fail):
     else:
         return ""
 
+run_verdicts = {"WRONG_ANSWER", "RUNTIME_ERROR", "TIME_LIMIT_EXCEEDED", "MEMORY_LIMIT_EXCEEDED", "TESTING"}
 def parse_verdict(verdict, passed):
-    if verdict == "WRONG_ANSWER" or verdict == "RUNTIME_ERROR" or verdict == "TIME_LIMIT_EXCEEDED" or verdict == "MEMORY_LIMIT_EXCEEDED":
+    if verdict in run_verdicts:
         return ("%s" + Fore.RESET + " (%d)") % (verdict_map[verdict], passed+1)
     else:
         return verdict_map[verdict] + Fore.RESET
@@ -91,7 +92,7 @@ def get_standings_table_string(contest):
 
             table.add_row(arr)
 
-        return table.get_string() 
+        return table.get_string()
     else:
         return Fore.RED + "Contest standings could not be retrieved."
 
@@ -113,7 +114,7 @@ def get_status_table_string(contest):
             return Fore.RED + "Contest status could not be retrieved.\n" + Fore.RESET + "Reason: " + data["comment"]
 
         for sub in data["result"]:
-            table.add_row([sub["id"], delta_time(sub["creationTimeSeconds"]), get_contest_time(sub["relativeTimeSeconds"]), "%s - %s" % (sub["problem"]["index"], 
+            table.add_row([sub["id"], delta_time(sub["creationTimeSeconds"]), get_contest_time(sub["relativeTimeSeconds"]), "%s - %s" % (sub["problem"]["index"],
                 sub["problem"]["name"]), parse_verdict(sub.get("verdict", ""), sub.get("passedTestCount", 0)), "%d ms" %(sub["timeConsumedMillis"]), "%d KB" % (sub["memoryConsumedBytes"] // 1024)])
 
         return table.get_string()
@@ -150,13 +151,13 @@ def get_last_table_string(contest=None):
             contest_id = contest["id"]
             tmp = [i for i in result if str(i.get("contestId", "")).strip() == str(contest_id).strip()]
             result = tmp
-    
+
         cnt = 0
         for sub in result:
             if cnt >= maxsub:
                 break
             cnt += 1
-            table.add_row([sub["id"], delta_time(sub["creationTimeSeconds"]), "%s - %s" % (sub["problem"]["index"], 
+            table.add_row([sub["id"], delta_time(sub["creationTimeSeconds"]), "%s - %s" % (sub["problem"]["index"],
                 sub["problem"]["name"]), parse_verdict(sub.get("verdict", ""), sub["passedTestCount"]), "%d ms" %(sub["timeConsumedMillis"]), "%d KB" % (sub["memoryConsumedBytes"] // 1024)])
 
         return table.get_string()
