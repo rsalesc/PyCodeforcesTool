@@ -21,17 +21,8 @@ def check_tokens(output, expected):
         if not check_token(tk, expected_tk[idx]):
             return "Difference at token #%d. Expected '%s' but found '%s'." % (idx+1, expected_tk[idx], tk)
 
-def test_contest_problem(contest, problem, language=None, task_file=None, stream=False):
-    if not language:
-        language = cfg["languages"][cfg["languages"]["default"]]
-
-    problem_dir = os.path.join(contest["dir"], get_relative_problem_dir(contest, problem))
-    if not task_file:
-        task_file = os.path.relpath(get_contest_task_file(contest, problem, language), contest["dir"])
-    submit_file = os.path.relpath(get_contest_task_submit_file(contest, problem, language), contest["dir"])
-
+def preprocess(contest, problem, language, task_file, submit_file):
     print Fore.CYAN + "Pre-processing %s..." % (task_file)
-    preexec_ok = True
     preexec_list = language["preexec"] if "preexec" in language.keys() else []
 
     for pre in preexec_list:
@@ -41,8 +32,27 @@ def test_contest_problem(contest, problem, language=None, task_file=None, stream
         p = subprocess.Popen(shlex.split(preexec_line), cwd=contest["dir"])
         p.wait()
         if p.returncode != 0:
-            preexec_ok = False
-            break
+            return False
+    return True
+
+def get_task_and_submit_files(contest, problem, language):
+    task_file = os.path.relpath(get_contest_task_file(contest, problem, language), contest["dir"])
+    submit_file = os.path.relpath(get_contest_task_submit_file(contest, problem, language), contest["dir"])
+    return (task_file, submit_file)
+
+def test_contest_problem(contest, problem, language=None, task_file=None, stream=False):
+    if not language:
+        language = cfg["languages"][cfg["languages"]["default"]]
+
+    problem_dir = os.path.join(contest["dir"], get_relative_problem_dir(contest, problem))
+    if not task_file:
+        (task_file, submit_file) = get_task_and_submit_files(contest, problem, language)
+    else:
+        base = os.path.basename(task_file)
+        submit_file = os.path.join(os.path.dirname(task_file),
+            '.'.join(base.split(".")[:-1] + ['pre'] + base.split(".")[-1:]))
+
+    preexec_ok = preprocess(contest, problem, language, task_file, submit_file)
 
     if preexec_ok:
         executable = language["exec"].replace("%{file}", task_file).replace("%{submit-file}", submit_file)

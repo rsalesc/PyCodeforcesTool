@@ -56,6 +56,8 @@ def get_index_and_language(string):
     splitted = string.split(".")
     if len(splitted) > 1 and splitted[1] in cfg["languages"].keys():
         language = cfg["languages"][splitted[1]]
+    else:
+        language = cfg["languages"][cfg["languages"]["default"]]
 
     return (splitted[0], language)
 

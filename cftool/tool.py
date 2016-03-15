@@ -5,7 +5,8 @@ from download import find_contest, get_contest_task_file, create_contest, find_o
 from submit import submit_problem, get_index_and_language, get_problem_and_language
 from watch import get_status_table_string, get_standings_table_string, normal_buffer, alternate_buffer, clear_buffer
 from watch import get_last_table_string
-from tester import test_contest_problem, test_single_problem
+from tester import test_contest_problem, test_single_problem, get_task_and_submit_files, \
+                    preprocess
 import notify
 import editor
 import time
@@ -106,12 +107,15 @@ def main():
                 os.chdir(contest["dir"])
 
                 (index, language) = get_index_and_language(args.submit)
-
-                if submit_problem(contest, args.submit, get_contest_task_submit_file(contest, index, language), language):
-                    problem_submitted = True
-                    print Fore.GREEN + "Problem submitted. Make sure it was not identical to some previous submission."
+                (task_file, submit_file) = get_task_and_submit_files(contest, index, language)
+                if preprocess(contest, index, language, task_file, submit_file):
+                    if submit_problem(contest, args.submit, get_contest_task_submit_file(contest, index, language), language):
+                        problem_submitted = True
+                        print Fore.GREEN + "Problem submitted. Make sure it was not identical to some previous submission."
+                    else:
+                        print Fore.RED + "The problem could not be submitted."
                 else:
-                    print Fore.RED + "The problem could not be submitted."
+                    print Fore.RED + "There was an error in the preprocessing step."
             else:
                 contest_not_found()
 

@@ -12,7 +12,7 @@ setup(
     entry_points = {
         "console_scripts": ['cf = cftool.tool:main']
     },
-    version = "0.6.0",
+    version = "0.6.1",
     description = "Codeforces tool python command line application.",
     long_description = "No description yet",
     author = "Roberto Sales",
