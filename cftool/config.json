@@ -25,10 +25,7 @@
       "template": "template.cpp",
       "file": "%{problem-index}.cpp",
       "submitFile": "%{problem-index}.pre.cpp",
-      "preexec": [
-        "exinc -i \"%{file}\" -o \"%{submit-file}\"",
-        "g++ \"%{submit-file}\" -std=c++11"
-      ],
+      "preexec": ["exinc -i \"%{file}\" -o \"%{submit-file}\" -c"],
       "exec": "./a.out",
       "typeid": 42
     },
