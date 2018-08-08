@@ -12,7 +12,7 @@ setup(
     entry_points = {
         "console_scripts": ['cf = cftool.tool:main']
     },
-    version = "0.6.1",
+    version = "0.6.3",
     description = "Codeforces tool python command line application.",
     long_description = "No description yet",
     author = "Roberto Sales",
@@ -26,7 +26,7 @@ setup(
         "pyquery",
         "prettytable",
         "mechanize",
-        "ago",
-        "notify2"
+        "ago"
+        #"notify2"
     ]
 )

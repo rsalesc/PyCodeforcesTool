@@ -31,7 +31,7 @@ class Session():
         if form == None:
             raise Exception("Login form was not found")
 
-        form["handle"] = handle
+        form["handleOrEmail"] = handle
         form["password"] = password
         self.br.form = form
         response = self.br.submit()
