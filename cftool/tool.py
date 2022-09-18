@@ -7,7 +7,6 @@ from watch import get_status_table_string, get_standings_table_string, normal_bu
 from watch import get_last_table_string
 from tester import test_contest_problem, test_single_problem, get_task_and_submit_files, \
                     preprocess
-import notify
 import editor
 import time
 import os
@@ -28,7 +27,6 @@ group.add_argument("-a", "--add", metavar="problem-index", help="add a custom te
 group.add_argument("-e", "--edit", metavar="problem-index", help="edit problem from current contest")
 group.add_argument("-f", "--folder", action="store_true", help="open folder in desired application")
 group.add_argument("-c", "--config", action="store_true", help="edit tool configurations")
-group.add_argument("-n", "--notify", action="store_true", help="watch for notifications")
 
 parser.add_argument("-x", "--single", action="store_true", help="modifier to run commands for a single file")
 parser.add_argument("-v", "--stream", action="store_true", help="print results in streaming way")
@@ -70,12 +68,6 @@ def sigint_handler(signal, frame):
 def main():
     signal.signal(signal.SIGINT, sigint_handler)
     problem_submitted = False
-
-    if args.notify:
-        contest = find_contest()
-        if contest != None:
-            notify.process(contest)
-        return
 
     if args.download:
         if create_contest(args.download):

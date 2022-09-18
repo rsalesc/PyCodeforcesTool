@@ -1,13 +1,14 @@
-from pprint import pprint
-import requests
-import os
 import json
+import os
 import re
 import shutil
+from pprint import pprint
+
+import requests
 from colorama import Fore, init
-from pyquery import PyQuery as pq
 from HTMLParser import HTMLParser
 from pkg_resources import resource_string
+from pyquery import PyQuery as pq
 
 app_folder = os.path.join(os.path.expanduser("~"), ".cftool/")
 global_contest_folder = os.path.join(app_folder, ".contests")
@@ -100,8 +101,11 @@ def get_contest_task_submit_file(contest, index, language=None):
 def get_relative_problem_dir(contest, index):
 	return "%s/" % (index)
 
-def normalize_html(str):
-	return HTMLParser().unescape(re.sub(r"(?i)<br\s*?/?>","\n",str))
+def normalize_sample(q):
+	divs = q.find("div")
+	if divs:
+		return q.text().strip() + "\n"
+	return HTMLParser().unescape(re.sub(r"(?i)<br\s*?/?>","\n", q.html())).strip() + "\n"
 
 def create_contest(contest_id):
 	url="http://www.codeforces.com/contest/" + str(contest_id) + "/problems"
@@ -128,8 +132,8 @@ def create_contest(contest_id):
 			output_elems = elem.find(".output")
 			for idx, inelem in enumerate(input_elems):
 				test = {
-					"input": normalize_html(pq(pq(inelem).find("pre")[0]).html()),
-					"output": normalize_html(pq(pq(output_elems[idx]).find("pre")[0]).html())
+					"input": normalize_sample(pq(pq(inelem).find("pre")[0])),
+					"output": normalize_sample(pq(pq(output_elems[idx]).find("pre")[0])),
 				}
 				problem["tests"].append(test)
 
@@ -163,7 +167,7 @@ def create_contest(contest_id):
 			out_path = os.path.join(problem_dir, ("test%d.out" % i))
 			with open(in_path, "wb") as f:
 				f.write(test["input"])
-                        with open(out_path, "wb") as f:
+			with open(out_path, "wb") as f:
 				f.write(test["output"])
 
 	return True
@@ -193,8 +197,8 @@ def create_global_contest(contest_id):
 			output_elems = elem.find(".output")
 			for idx, inelem in enumerate(input_elems):
 				test = {
-					"input": normalize_html(pq(pq(inelem).find("pre")[0]).html()),
-					"output": normalize_html(pq(pq(output_elems[idx]).find("pre")[0]).html())
+					"input": normalize_sample(pq(pq(inelem).find("pre")[0])),
+					"output": normalize_sample(pq(pq(output_elems[idx]).find("pre")[0])),
 				}
 				problem["tests"].append(test)
 
