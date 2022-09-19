@@ -17,9 +17,9 @@
     "cpp":{
       "template": "template.cpp",
       "file": "%{problem-index}.cpp",
-      "preexec": ["g++ \"%{file}\" -std=c++11"],
+      "preexec": ["g++ \"%{file}\" -std=c++17"],
       "exec": "./a.out",
-      "typeid": 42
+      "typeid": 54
     },
     "cpp+exinc":{
       "template": "template.cpp",
@@ -27,7 +27,7 @@
       "submitFile": "%{problem-index}.pre.cpp",
       "preexec": ["exinc -i \"%{file}\" -o \"%{submit-file}\" -c"],
       "exec": "./a.out",
-      "typeid": 42
+      "typeid": 54
     },
     "py":{
       "template": "template.py",

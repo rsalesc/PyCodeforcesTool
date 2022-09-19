@@ -1,10 +1,14 @@
-from pprint import pprint
-import requests
 import json
 import os
-from download import find_contest, cfg
-from colorama import init, Fore
+from pprint import pprint
+
 import mechanize
+import requests
+from colorama import Fore, init
+
+from download import cfg, find_contest
+from utils import get_contest_url
+
 
 class Session():
     def __init__(self):
@@ -40,7 +44,7 @@ class Session():
 
     def submit(self, contest_id, problem, file, language_id):
         filename = os.path.abspath(file)
-        url = "http://codeforces.com/contest/%s/problem/%s" % (str(contest_id), problem)
+        url = "%s/problem/%s" % (get_contest_url(contest_id), problem)
         self.br.open(url)
         form = self.select_form_by_class("submitForm", self.br.forms())
         if form == None:

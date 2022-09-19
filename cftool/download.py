@@ -10,6 +10,8 @@ from HTMLParser import HTMLParser
 from pkg_resources import resource_string
 from pyquery import PyQuery as pq
 
+from utils import get_contest_url
+
 app_folder = os.path.join(os.path.expanduser("~"), ".cftool/")
 global_contest_folder = os.path.join(app_folder, ".contests")
 
@@ -108,7 +110,7 @@ def normalize_sample(q):
 	return HTMLParser().unescape(re.sub(r"(?i)<br\s*?/?>","\n", q.html())).strip() + "\n"
 
 def create_contest(contest_id):
-	url="http://www.codeforces.com/contest/" + str(contest_id) + "/problems"
+	url = get_contest_url(contest_id) + "/problems"
 	print Fore.YELLOW + "Downloading contest "  + str(contest_id) + " from " + url
 	page = requests.get(url) # rember to check if page was down suc
 	if page.status_code != requests.codes.ok:
@@ -173,7 +175,7 @@ def create_contest(contest_id):
 	return True
 
 def create_global_contest(contest_id):
-	url="http://www.codeforces.com/contest/" + str(contest_id) + "/problems"
+	url = get_contest_url(contest_id) + "/problems"
 	print Fore.YELLOW + "Downloading contest "  + str(contest_id) + " from " + url
 	page = requests.get(url) # rember to check if page was down suc
 	if page.status_code != requests.codes.ok:
