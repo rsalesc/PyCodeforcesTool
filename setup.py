@@ -26,7 +26,6 @@ setup(
         "pyquery",
         "prettytable",
         "mechanize",
-        "ago"
         #"notify2"
     ]
 )

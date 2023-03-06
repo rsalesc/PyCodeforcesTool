@@ -1,13 +1,13 @@
 import argparse
 from colorama import init, Fore
-from download import find_contest, get_contest_task_file, create_contest, find_or_create_global_contest, app_folder, \
+from .download import find_contest, get_contest_task_file, create_contest, find_or_create_global_contest, app_folder, \
                     get_contest_task_submit_file
-from submit import submit_problem, get_index_and_language, get_problem_and_language
-from watch import get_status_table_string, get_standings_table_string, normal_buffer, alternate_buffer, clear_buffer
-from watch import get_last_table_string
-from tester import test_contest_problem, test_single_problem, get_task_and_submit_files, \
+from .submit import submit_problem, get_index_and_language, get_problem_and_language
+from .watch import get_status_table_string, get_standings_table_string, normal_buffer, alternate_buffer, clear_buffer
+from .watch import get_last_table_string
+from .tester import test_contest_problem, test_single_problem, get_task_and_submit_files, \
                     preprocess
-import editor
+from . import editor
 import time
 import os
 import atexit
@@ -43,18 +43,18 @@ def dump_table(name, str):
 def confirmation(text="Are you sure you want to continue?"):
     choices = {"Y":True, "y":True, "n": False, "N": False}
 
-    print text + " (Y/n)"
+    print(text + " (Y/n)")
     while True:
-        r = raw_input().strip()
+        r = input().strip()
         if not r in choices:
-            print "Please, type only (Y/n) as response."
+            print("Please, type only (Y/n) as response.")
             continue
         else:
             return choices[r]
 
 
 def contest_not_found():
-    print Fore.RED + "Contest could not be found."
+    print(Fore.RED + "Contest could not be found.")
 
 def get_absolute_path(path):
     return os.path.normpath(os.path.join(os.getcwd(), path))
@@ -71,13 +71,13 @@ def main():
 
     if args.download:
         if create_contest(args.download):
-            print Fore.GREEN + "Contest downloaded successfully."
+            print(Fore.GREEN + "Contest downloaded successfully.")
         else:
-            print Fore.RED + "Contest could not be downloaded."
+            print(Fore.RED + "Contest could not be downloaded.")
 
     elif args.submit:
-        print Fore.CYAN + "Problem: " + Fore.RESET + str(args.submit)
-        print Fore.RED + "Have you checked all the corner cases, constraints and overflow possibilities?" + Fore.RESET
+        print(Fore.CYAN + "Problem: " + Fore.RESET + str(args.submit))
+        print(Fore.RED + "Have you checked all the corner cases, constraints and overflow possibilities?" + Fore.RESET)
         if not confirmation():
             sys.exit(0)
 
@@ -90,9 +90,9 @@ def main():
             else:
                 if submit_problem(contest, idx, file, language):
                     problem_submitted = True
-                    print Fore.GREEN + "Problem submitted. Make sure it was not identical to some previous submission."
+                    print(Fore.GREEN + "Problem submitted. Make sure it was not identical to some previous submission.")
                 else:
-                    print Fore.RED + "The problem could not be submitted."
+                    print(Fore.RED + "The problem could not be submitted.")
         else:
             contest = find_contest()
             if contest != None:
@@ -103,11 +103,11 @@ def main():
                 if preprocess(contest, index, language, task_file, submit_file):
                     if submit_problem(contest, args.submit, get_contest_task_submit_file(contest, index, language), language):
                         problem_submitted = True
-                        print Fore.GREEN + "Problem submitted. Make sure it was not identical to some previous submission."
+                        print(Fore.GREEN + "Problem submitted. Make sure it was not identical to some previous submission.")
                     else:
-                        print Fore.RED + "The problem could not be submitted."
+                        print(Fore.RED + "The problem could not be submitted.")
                 else:
-                    print Fore.RED + "There was an error in the preprocessing step."
+                    print(Fore.RED + "There was an error in the preprocessing step.")
             else:
                 contest_not_found()
 
@@ -160,7 +160,7 @@ def main():
             if problem_submitted:
                 text += Fore.GREEN + "Request was sent. Check if problem was received by the server.\n"
             text += get_last_update()+"\n"
-            print text
+            print(text)
             # dump_table("last", text)
             time.sleep(3)
 
@@ -173,7 +173,7 @@ def main():
                 status = get_last_table_string(contest)
                 standings = get_standings_table_string(contest)
                 clear_buffer()
-                print status
-                print standings
-                print get_last_update()
+                print(status)
+                print(standings)
+                print(get_last_update())
                 time.sleep(3)

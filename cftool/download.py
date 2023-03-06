@@ -6,11 +6,11 @@ from pprint import pprint
 
 import requests
 from colorama import Fore, init
-from HTMLParser import HTMLParser
+import html
 from pkg_resources import resource_string
 from pyquery import PyQuery as pq
 
-from utils import get_contest_url
+from .utils import get_contest_url
 
 app_folder = os.path.join(os.path.expanduser("~"), ".cftool/")
 global_contest_folder = os.path.join(app_folder, ".contests")
@@ -24,7 +24,7 @@ def load_config(path):
 def deprecated_config(path):
 	cur_config = load_config(path)
 	new_config = json.loads(resource_string(__name__, "config.json"))
-	if not "release" in cur_config.keys() or cur_config["release"] < new_config["release"]:
+	if not "release" in list(cur_config.keys()) or cur_config["release"] < new_config["release"]:
 		return True
 	return False
 
@@ -86,19 +86,18 @@ def get_contest_task_file(contest, index, language=None):
 	return os.path.join(contest["dir"], "%s/%s" % (index, get_contest_file_name(contest, index, language)))
 
 def get_contest_submit_file_name(contest, index, language=None):
-    if not language:
+	if not language:
 		language = cfg["languages"][cfg["languages"]["default"]]
-
-    if not "submitFile" in language:
-        return get_contest_file_name(contest, index, language)
-    else:
-        return language["submitFile"].replace("%{problem-index}", index) \
-                .replace("%{file}", get_contest_file_name(contest, index, language))
+	if not "submitFile" in language:
+		return get_contest_file_name(contest, index, language)
+	else:
+		return language["submitFile"].replace("%{problem-index}", index) \
+			.replace("%{file}", get_contest_file_name(contest, index, language))
 
 def get_contest_task_submit_file(contest, index, language=None):
-    if not language:
-		language = cfg["languages"][cfg["languages"]["default"]]
-    return os.path.join(contest["dir"], "%s/%s" % (index, get_contest_submit_file_name(contest, index, language)))
+		if not language:
+			language = cfg["languages"][cfg["languages"]["default"]]
+		return os.path.join(contest["dir"], "%s/%s" % (index, get_contest_submit_file_name(contest, index, language)))
 
 def get_relative_problem_dir(contest, index):
 	return "%s/" % (index)
@@ -107,11 +106,11 @@ def normalize_sample(q):
 	divs = q.find("div")
 	if divs:
 		return q.text().strip() + "\n"
-	return HTMLParser().unescape(re.sub(r"(?i)<br\s*?/?>","\n", q.html())).strip() + "\n"
+	return html.unescape(re.sub(r"(?i)<br\s*?/?>","\n", q.html())).strip() + "\n"
 
 def create_contest(contest_id):
 	url = get_contest_url(contest_id) + "/problems"
-	print Fore.YELLOW + "Downloading contest "  + str(contest_id) + " from " + url
+	print((Fore.YELLOW + "Downloading contest "  + str(contest_id) + " from " + url))
 	page = requests.get(url) # rember to check if page was down suc
 	if page.status_code != requests.codes.ok:
 		return False
@@ -147,7 +146,7 @@ def create_contest(contest_id):
 	dir = str(contest_id)
 	if not os.path.exists(dir):
 		os.makedirs(dir)
-	with open(os.path.join(dir, "contest.json"), "wb") as f:
+	with open(os.path.join(dir, "contest.json"), "w") as f:
 		json.dump(contest, f, indent=4)
 
 	for problem in contest["problems"]:
@@ -156,10 +155,10 @@ def create_contest(contest_id):
 			os.makedirs(problem_dir)
 
 		# shutil.copyfile(template_path, os.path.join(problem_dir, problem["idx"]+"."+cfg["extension"])) # check this
-		for key, language in cfg["languages"].iteritems():
+		for key, language in cfg["languages"].items():
 			if key == "default":
 				continue
-			if "template" in language.keys():
+			if "template" in list(language.keys()):
 				template_path = os.path.join(app_folder, language["template"])
 				if os.path.exists(template_path):
 					shutil.copyfile(template_path, os.path.join(problem_dir, get_contest_file_name(contest, problem["idx"], language)))
@@ -167,16 +166,16 @@ def create_contest(contest_id):
 		for i,test in enumerate(problem["tests"]):
 			in_path = os.path.join(problem_dir, ("test%d.in" % i))
 			out_path = os.path.join(problem_dir, ("test%d.out" % i))
-			with open(in_path, "wb") as f:
+			with open(in_path, "w") as f:
 				f.write(test["input"])
-			with open(out_path, "wb") as f:
+			with open(out_path, "w") as f:
 				f.write(test["output"])
 
 	return True
 
 def create_global_contest(contest_id):
 	url = get_contest_url(contest_id) + "/problems"
-	print Fore.YELLOW + "Downloading contest "  + str(contest_id) + " from " + url
+	print((Fore.YELLOW + "Downloading contest "  + str(contest_id) + " from " + url))
 	page = requests.get(url) # rember to check if page was down suc
 	if page.status_code != requests.codes.ok:
 		return None
@@ -213,7 +212,7 @@ def create_global_contest(contest_id):
 	if not os.path.exists(dir):
 		os.makedirs(dir)
 	contest["dir"] = dir
-	with open(os.path.join(dir, "contest.json"), "wb") as f:
+	with open(os.path.join(dir, "contest.json"), "w") as f:
 		json.dump(contest, f, indent=4)
 
 	for problem in contest["problems"]:

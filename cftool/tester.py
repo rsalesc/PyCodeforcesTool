@@ -4,9 +4,9 @@ import json
 import os
 import shlex
 from colorama import init, Fore
-from download import cfg, get_contest_task_file, find_contest, get_relative_problem_dir, find_or_create_global_contest, \
+from .download import cfg, get_contest_task_file, find_contest, get_relative_problem_dir, find_or_create_global_contest, \
                 get_contest_submit_file_name, get_contest_task_submit_file
-from submit import get_problem_and_language
+from .submit import get_problem_and_language
 
 def check_token(output_tk, expected_tk):
     return output_tk == expected_tk
@@ -22,8 +22,8 @@ def check_tokens(output, expected):
             return "Difference at token #%d. Expected '%s' but found '%s'." % (idx+1, expected_tk[idx], tk)
 
 def preprocess(contest, problem, language, task_file, submit_file):
-    print Fore.CYAN + "Pre-processing %s..." % (task_file)
-    preexec_list = language["preexec"] if "preexec" in language.keys() else []
+    print((Fore.CYAN + "Pre-processing %s..." % (task_file)))
+    preexec_list = language["preexec"] if "preexec" in list(language.keys()) else []
 
     for pre in preexec_list:
         preexec_line = pre.replace("%{file}", task_file) \
@@ -62,19 +62,19 @@ def test_contest_problem(contest, problem, language=None, task_file=None, stream
             ans_path = os.path.join(problem_dir, "%s.out" % (os.path.splitext(input_file)[0]))
             input_string = None
             ans_string = ""
-            with open(input_path, "rb") as f:
+            with open(input_path, "r") as f:
                 input_string = f.read()
 
             if os.path.exists(ans_path):
-                with open(ans_path, "rb") as f:
+                with open(ans_path, "r") as f:
                     ans_string = f.read()
 
             if input_string != None:
-                print Fore.YELLOW + "Executing test #%d (%s):" % (idx, os.path.splitext(input_file)[0])
-                print Fore.MAGENTA + "Input:"
-                print Fore.WHITE + input_string.strip()
-                print ""
-                print Fore.MAGENTA + "Output:"
+                print(Fore.YELLOW + "Executing test #%d (%s):" % (idx, os.path.splitext(input_file)[0]))
+                print(Fore.MAGENTA + "Input:")
+                print(Fore.WHITE + input_string.strip())
+                print("")
+                print(Fore.MAGENTA + "Output:")
                 p = subprocess.Popen(shlex.split(executable), bufsize=1 if stream else 0, cwd=contest["dir"], stdin=open(input_path, "rb"), stdout=subprocess.PIPE, stderr=(subprocess.STDOUT if cfg["mergeouterr"] else None))
                 # output_tuple = p.communicate(input=input_string)
                 output_print = ""
@@ -82,43 +82,43 @@ def test_contest_problem(contest, problem, language=None, task_file=None, stream
                 if stream:
                     with p.stdout:
                         for line in iter(p.stdout.readline, b''):
-                            print Fore.WHITE + line.rstrip()
+                            print(Fore.WHITE + line.rstrip())
                             output_print += line
                     p.wait() # wait for the subprocess to exit
                     output_print = output_print.strip()
                 else:
                     p.wait()
-                    output_print = p.communicate()[0].strip()
-                    print Fore.WHITE + output_print
+                    output_print = p.communicate()[0].strip().decode("utf-8")
+                    print(Fore.WHITE + output_print)
 
                 ans_print = ans_string.strip()
 
                 # print Fore.WHITE + output_print
-                print ""
-                print Fore.MAGENTA + "Expected Output:"
-                print Fore.WHITE + ans_print
-                print ""
+                print("")
+                print(Fore.MAGENTA + "Expected Output:")
+                print(Fore.WHITE + ans_print)
+                print("")
                 if p.returncode != 0:
-                    print Fore.MAGENTA + "Verdict: " + Fore.CYAN + "Execution error"
+                    print(Fore.MAGENTA + "Verdict: " + Fore.CYAN + "Execution error")
                 else:
                     verdict = check_tokens(output_print, ans_print)
                     if verdict:
-                        print Fore.MAGENTA + "Verdict: " + Fore.RED + verdict
+                        print(Fore.MAGENTA + "Verdict: " + Fore.RED + verdict)
                     else:
-                        print Fore.MAGENTA + "Verdict: " + Fore.GREEN + "Accepted"
-                print ""
+                        print(Fore.MAGENTA + "Verdict: " + Fore.GREEN + "Accepted")
+                print("")
 
             else:
-                print Fore.RED + "Error reading input files."
+                print(Fore.RED + "Error reading input files.")
     else:
-        print Fore.RED + "Error at some step of pre-processing."
+        print(Fore.RED + "Error at some step of pre-processing.")
 
 
 def test_single_problem(path, stream=False):
     contest_id, idx, language = get_problem_and_language(path)
     contest = find_or_create_global_contest(contest_id)
     if not contest:
-        print "Failed testing problem. Contest does not exists."
+        print("Failed testing problem. Contest does not exists.")
     else:
         test_contest_problem(contest, idx, language, task_file=path, stream=stream)
 
@@ -129,4 +129,4 @@ if __name__ == "__main__":
         os.chdir(contest["dir"])
         test_contest_problem(contest, "A")
     else:
-        print "Contest could not be found."
+        print("Contest could not be found.")

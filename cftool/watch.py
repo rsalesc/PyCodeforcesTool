@@ -3,11 +3,10 @@ from prettytable import PrettyTable
 import requests
 import json
 import os
-from download import cfg, find_contest
+from .download import cfg, find_contest
 from colorama import Fore, init
 import time
 import atexit
-import ago
 from datetime import datetime
 
 verdict_map = {
@@ -24,16 +23,16 @@ verdict_map = {
 }
 
 def alternate_buffer():
-    print "\033[?47h"
+    print("\033[?47h")
 
 def normal_buffer():
-    print "\033[?47l"
+    print("\033[?47l")
 
 def clear_buffer():
-    print "\x1b[2J\x1b[1;1H"
+    print("\x1b[2J\x1b[1;1H")
 
 def delta_time(ts):
-    return ago.human(datetime.fromtimestamp(ts), 1)
+    return ""
 
 def get_contest_time(secs):
     if(secs > 1e7):
@@ -72,7 +71,7 @@ def get_standings_table_string(contest):
     }
     r = requests.get("http://codeforces.com/api/contest.standings", params=qs, timeout=4)
     if r.status_code == requests.codes.ok:
-        head = map(table_header, ["#", "Handle", "Points (Hacks)"])
+        head = list(map(table_header, ["#", "Handle", "Points (Hacks)"]))
         data = r.json()
         for problem in data["result"]["problems"]:
             head.append(table_header("%s (%d)" % (problem["index"], int(problem["points"]))))
@@ -108,7 +107,7 @@ def get_status_table_string(contest):
     }
     r = requests.get("http://codeforces.com/api/contest.status", params=qs, timeout=4)
     if r.status_code == requests.codes.ok:
-        table = PrettyTable(map(table_header, ["#", "Time", "Contest Time", "Problem", "Verdict", "Exec. Time", "Memory"]))
+        table = PrettyTable(list(map(table_header, ["#", "Time", "Contest Time", "Problem", "Verdict", "Exec. Time", "Memory"])))
         data = r.json()
         if data["status"] == "FAILED":
             return Fore.RED + "Contest status could not be retrieved.\n" + Fore.RESET + "Reason: " + data["comment"]
@@ -141,7 +140,7 @@ def get_last_table_string(contest=None):
         r = requests.get("http://codeforces.com/api/contest.status", params=qs, timeout=4)
 
     if r.status_code == requests.codes.ok:
-        table = PrettyTable(map(table_header, ["#", "Time", "Problem", "Verdict", "Exec. Time", "Memory"]))
+        table = PrettyTable(list(map(table_header, ["#", "Time", "Problem", "Verdict", "Exec. Time", "Memory"])))
         data = r.json()
         if data["status"] == "FAILED":
             return Fore.RED + "Last submissions could not be retrieved.\n" + Fore.RESET + "Reason: " + data["comment"]

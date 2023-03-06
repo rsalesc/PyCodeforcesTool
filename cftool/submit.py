@@ -6,8 +6,8 @@ import mechanize
 import requests
 from colorama import Fore, init
 
-from download import cfg, find_contest
-from utils import get_contest_url
+from .download import cfg, find_contest
+from .utils import get_contest_url
 
 
 class Session():
@@ -58,7 +58,7 @@ class Session():
 def get_index_and_language(string):
     language = None
     splitted = string.split(".")
-    if len(splitted) > 1 and splitted[1] in cfg["languages"].keys():
+    if len(splitted) > 1 and splitted[1] in list(cfg["languages"].keys()):
         language = cfg["languages"][splitted[1]]
     else:
         language = cfg["languages"][cfg["languages"]["default"]]
@@ -83,8 +83,8 @@ def submit_problem(contest, problem, file, language=None):
     if not language:
         language = cfg["languages"][cfg["languages"]["default"]]
 
-    if not "typeid" in language.keys():
-        print Fore.RED + "Typeid for this language is not set."
+    if not "typeid" in list(language.keys()):
+        print((Fore.RED + "Typeid for this language is not set."))
         return False
 
     if not os.path.exists(file):
@@ -94,10 +94,10 @@ def submit_problem(contest, problem, file, language=None):
         session = Session()
         session.login(cfg["handle"], cfg["password"])
         session.submit(contest["id"], problem, file, language["typeid"])
-        print Fore.MAGENTA + "Request was sent. Check if the submission was received by the server executing -l command"
+        print((Fore.MAGENTA + "Request was sent. Check if the submission was received by the server executing -l command"))
         return True
     else:
-        print Fore.RED + "Credentials were not set in config.json"
+        print((Fore.RED + "Credentials were not set in config.json"))
         return False
 
 if __name__ == "__main__":
@@ -106,8 +106,8 @@ if __name__ == "__main__":
     if contest != None:
         os.chdir(contest["dir"])
         if submit_problem(contest, "A", "A/A.cpp"):
-            print Fore.GREEN + "Problem submitted. Make sure it was not identical to some previous submission."
+            print((Fore.GREEN + "Problem submitted. Make sure it was not identical to some previous submission."))
         else:
-            print Fore.RED + "The problem could not be submitted."
+            print((Fore.RED + "The problem could not be submitted."))
     else:
-        print Fore.RED + "Contest could not be found."
+        print((Fore.RED + "Contest could not be found."))
