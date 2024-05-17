@@ -1,7 +1,7 @@
 import argparse
 from colorama import init, Fore
 from .download import find_contest, get_contest_task_file, create_contest, find_or_create_global_contest, app_folder, \
-                    get_contest_task_submit_file
+                    get_contest_task_submit_file, hydrate_samples_for_contest
 from .submit import submit_problem, get_index_and_language, get_problem_and_language
 from .watch import get_status_table_string, get_standings_table_string, normal_buffer, alternate_buffer, clear_buffer
 from .watch import get_last_table_string
@@ -27,6 +27,7 @@ group.add_argument("-a", "--add", metavar="problem-index", help="add a custom te
 group.add_argument("-e", "--edit", metavar="problem-index", help="edit problem from current contest")
 group.add_argument("-f", "--folder", action="store_true", help="open folder in desired application")
 group.add_argument("-c", "--config", action="store_true", help="edit tool configurations")
+group.add_argument("-hh", "--hydrate", action="store_true", help="hydrate samples for this contest")
 
 parser.add_argument("-x", "--single", action="store_true", help="modifier to run commands for a single file")
 parser.add_argument("-v", "--stream", action="store_true", help="print results in streaming way")
@@ -123,6 +124,14 @@ def main():
                 test_contest_problem(contest, index, language, stream=args.stream)
             else:
                 contest_not_found()
+
+    elif args.hydrate:
+        contest = find_contest()
+        if contest != None:
+            os.chdir(contest["dir"])
+            hydrate_samples_for_contest(contest)
+        else:
+            contest_not_found()
 
     elif args.add:
         contest = find_contest()

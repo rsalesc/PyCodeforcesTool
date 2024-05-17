@@ -108,6 +108,23 @@ def normalize_sample(q):
 		return q.text().strip() + "\n"
 	return html.unescape(re.sub(r"(?i)<br\s*?/?>","\n", q.html())).strip() + "\n"
 
+def hydrate_samples(dir, problem):
+	problem_dir = os.path.join(dir, problem["idx"]+"/")
+	if not os.path.exists(problem_dir):
+		os.makedirs(problem_dir)
+
+	for i,test in enumerate(problem["tests"]):
+		in_path = os.path.join(problem_dir, ("test%d.in" % i))
+		out_path = os.path.join(problem_dir, ("test%d.out" % i))
+		with open(in_path, "w") as f:
+			f.write(test["input"])
+		with open(out_path, "w") as f:
+			f.write(test["output"])
+
+def hydrate_samples_for_contest(contest):
+	for problem in contest["problems"]:
+		hydrate_samples(contest["dir"], problem)
+
 def create_contest(contest_id):
 	url = get_contest_url(contest_id) + "/problems"
 	print((Fore.YELLOW + "Downloading contest "  + str(contest_id) + " from " + url))
@@ -163,13 +180,7 @@ def create_contest(contest_id):
 				if os.path.exists(template_path):
 					shutil.copyfile(template_path, os.path.join(problem_dir, get_contest_file_name(contest, problem["idx"], language)))
 
-		for i,test in enumerate(problem["tests"]):
-			in_path = os.path.join(problem_dir, ("test%d.in" % i))
-			out_path = os.path.join(problem_dir, ("test%d.out" % i))
-			with open(in_path, "w") as f:
-				f.write(test["input"])
-			with open(out_path, "w") as f:
-				f.write(test["output"])
+		hydrate_samples(dir, problem)
 
 	return True
 
