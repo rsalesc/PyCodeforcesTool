@@ -61,6 +61,21 @@ def find_contest():
 			data = json.load(f)
 			data["dir"] = dir
 			return data
+		
+def create_template(file):
+	language = None
+	splitted = file.split(".")
+	if len(splitted) > 1 and splitted[1] in list(cfg["languages"].keys()):
+		language = cfg["languages"][splitted[1]]
+	else:
+		language = cfg["languages"][cfg["languages"]["default"]]
+
+	if "template" not in language:
+		print(Fore.RED + "Template could not be created at %s for language %s." % (file, language))
+		return
+	template_path = os.path.join(app_folder,  language["template"])
+	if os.path.exists(template_path):
+		shutil.copyfile(template_path, file)
 
 def find_global_contest(contest_id):
 	dir = os.path.join(global_contest_folder, str(contest_id))
